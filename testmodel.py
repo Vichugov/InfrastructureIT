@@ -4,10 +4,12 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, LSTM
 
+# Все массивы (списки) должны иметь тип numpy.array
 
-def normalize_data(pd_data):
-	divider = (max(pd_data) - min(pd_data))
-	return (pd_data - min(pd_data)) / divider
+
+def normalize_data(pd_data, min, max):
+	divider = (max - min)
+	return (pd_data - min) / divider
 	
 	
 def denormalize_data(pd_data, min, max):
@@ -34,25 +36,31 @@ def create_model(history_size, answer_size):
 	return model
 	
 	
-def train_model(model, data, history_size, answer_size):
-	normalized_data = normalize_data(data)
+def train_model(model, data, history_size, answer_size, min, max):
+	normalized_data = normalize_data(data, min, max)
 	X_train, Y_train = create_pack(normalized_data, history_size, answer_size)
 	X_train = X_train.reshape((X_train.shape[0], history_size, 1))
-	model.fit(X_train, Y_train, epochs=10)
+	model.fit(X_train, Y_train, epochs=20)
 	
 
-def create_new_model(data, history_size, answer_size):
+def create_new_model(data, history_size, answer_size, min, max):
 	model = create_model(history_size, answer_size)
-	train_model(model, data, history_size, answer_size)
+	train_model(model, data, history_size, answer_size, min, max)
 	return model
 	
-data = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]
-npdata = np.array(data)
-model = create_new_model(npdata, 3, 2)
-
-testdata = normalize_data(npdata[:3])
-testdata = testdata.reshape((1, 3, 1))
-result = model.predict(testdata)
-result = denormalize_data(result, 1, 3)
-print(result)
-
+	
+def save_model(model, model_name):
+	model.save(model_name)	
+	
+	
+def load_model(model_name):
+	return tf.keras.models.load_model(model_name)
+	
+	
+def predict_result(model, input_data, min, max):
+	normalized_data = normalize_data(input_data, min, max)
+	normalized_data = normalized_data.reshape((1, normalized_data.shape[0], 1))
+	result = model.predict(normalized_data)
+	result = denormalize_data(result, min, max)
+	return result
+	
