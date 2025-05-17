@@ -1,7 +1,7 @@
 import json
 import numpy as np
 from flask import Flask, request, jsonify
-import testmodel as mt
+import modeltools as mt
 
 app = Flask(__name__)
 
@@ -39,9 +39,10 @@ def predict_demand():
 			min = request_data['min-value']
 			max = request_data['max-value']
 			result = mt.predict_result(model, history, min, max)
-			result = result[0].tolist()
+			result = np.round(result[0]).astype(int).tolist()
 			
 	return jsonify(result)
+	
 	
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=5000, debug=True)
