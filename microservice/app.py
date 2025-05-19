@@ -1,9 +1,11 @@
+import os
 import json
 import numpy as np
 from flask import Flask, request, jsonify
 import modeltools as mt
 
 app = Flask(__name__)
+app_port = os.getenv('APP_PORT')
 
 
 @app.route("/demand-prediction", methods=['POST'])
@@ -45,4 +47,4 @@ def predict_demand():
 	
 	
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=5000, debug=True)
+	app.run(host='0.0.0.0', port=app_port, debug=True)

@@ -1,12 +1,16 @@
 FROM python:3.12.3-slim
 
 ENV PYTHONUNBUFFERED=1
-WORKDIR ./
-    
-RUN pip install --upgrade pip
+ENV APP_PORT=$PORT
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
+RUN groupadd pygroup && useradd --gid pygroup --create-home pyuser
+USER pyuser
+
+WORKDIR ~/app 
+COPY . .   
+        
+RUN pip install --upgrade pip --user
+RUN pip install --no-cache-dir -r ./requirements.txt --user
+
 CMD ["python", "app.py"]
-EXPOSE 5000
+EXPOSE $PORT
